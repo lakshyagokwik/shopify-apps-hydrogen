@@ -12,8 +12,11 @@ shopifyGraphQlUrl: Graph QL API for your store, follows the format-
 
 export const gokwikConfig = {
   mid: '19g6ilb0pbcu7',
-  env: 'production',
-  storefrontAccessToken: 'b4f7b1ecd2f99132f09e5fffb191b395',
+  storefrontAccessToken: '7bd989f4ef8935305413a01a0bbabf5b',
   shopifyGraphQlUrl:
-    'https://test-account-for-plus-stores.myshopify.com/api/2022-07/graphql.json',
+    'https://qa-store-kwik-labs.myshopify.com/api/2022-07/graphql.json',
+  gkShopDomain: 'qa-store-kwik-labs.myshopify.com',
 };
+
+// window.gkCustomerEmail = "{{ customer.email }}";
+// window.gkLogOutUrl = "{{ routes.account_logout_url }}";
