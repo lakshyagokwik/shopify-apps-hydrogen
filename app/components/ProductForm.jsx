@@ -13,6 +13,7 @@ export function ProductForm({productOptions, selectedVariant}) {
   const {open} = useAside();
   return (
     <div className="product-form">
+      <h1>this is cool af</h1>
       {productOptions.map((option) => {
         // If there is only a single value in the option values, don't display the option
         if (option.optionValues.length === 1) return null;
