@@ -300,23 +300,16 @@ export function GokwikButton(passedData) {
     }
     return '';
   }
-  const triggerGokwikCheckout = async (cart) => {
-    if (cart) {
-      window.merchantInfo.cart = cart;
-      buyNowRun = true;
-    } else {
+    const triggerGokwikCheckout = async () => {
       const cartID =
         JSON.parse(localStorage.getItem('cartLastUpdatedAt') || '')?.id ||
         getCookie('cart');
       document.cookie.slice();
       const apiResponse = await getCart(cartID);
-      window.merchantInfo.cart = apiResponse.data
-        ? apiResponse.data.cart
-        : null;
+        cart = apiResponse.data ? apiResponse.data.cart : null;
+        console.log(cart)
       buyNowRun = false;
     }
-    // window.merchantInfo.cart &&
-    //   window.gokwikSdk.initCheckout(window.merchantInfo);
   };
 
   return (
