@@ -300,16 +300,15 @@ export function GokwikButton(passedData) {
     }
     return '';
   }
-    const triggerGokwikCheckout = async () => {
-      const cartID =
-        JSON.parse(localStorage.getItem('cartLastUpdatedAt') || '')?.id ||
-        getCookie('cart');
-      document.cookie.slice();
-      const apiResponse = await getCart(cartID);
-        cart = apiResponse.data ? apiResponse.data.cart : null;
-        console.log(cart)
-      buyNowRun = false;
-    }
+  const triggerGokwikCheckout = async () => {
+    const cartID =
+      JSON.parse(localStorage.getItem('cartLastUpdatedAt') || '')?.id ||
+      getCookie('cart');
+    document.cookie.slice();
+    const apiResponse = await getCart(cartID);
+    const cart = apiResponse.data ? apiResponse.data.cart : null;
+    console.log(cart);
+    buyNowRun = false;
   };
 
   return (
