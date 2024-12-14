@@ -49,33 +49,6 @@ export function GokwikButton(passedData) {
     createBuyNowCart(passedData);
   };
 
-  const addToCart = (cart) => {
-    const query = `
-        mutation addItemToCart($cartId: ID!, $lines: [CartLineInput!]!) {
-          cartLinesAdd(cartId: $cartId, lines: $lines) {
-            cart {
-              id}}}`;
-    const variables = {
-      cartId: cart.id,
-      lines: {
-        merchandiseId: cart?.lines[0]?.merchandise?.id,
-        quantity: cart?.lines[0]?.quantity,
-      },
-    };
-    gokwikStoreFrontApi(query, variables);
-  };
-
-  const removeFromCart = (cart) => {
-    const lineIDsToRemove = [];
-    const query = `
-        mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
-  cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
-    cart {
-     id
-    }
-
-  }
-}`;
     const variables = {
       cartId: cart.id,
       lineIds: [],
@@ -285,7 +258,7 @@ export function GokwikButton(passedData) {
         console.log(err);
       });
   };
-  function getCookie(cname) {
+  function getGkCookie(cname) {
     let name = cname + '=';
     let decodedCookie = document.cookie;
     let ca = decodedCookie.split(';');
@@ -300,14 +273,132 @@ export function GokwikButton(passedData) {
     }
     return '';
   }
+  function getHydrogenDiscountCode() {
+    let cookie = {};
+    document.cookie.split(';').forEach(function (el) {
+      let [key, value] = el.split('=');
+      cookie[key.trim()] = value;
+    });
+    const discountCode =
+      cookie['discount_code'] ||
+      cookie['coupon_applied'] ||
+      cookie['applied-coupons'];
+    return discountCode;
+  }
+
   const triggerGokwikCheckout = async () => {
-    const cartID =
+    const LOGIN_IFRAME_HOST =
+      'https://pdp.gokwik.co/checkout-enhancer/index.html';
+    const API_URL = 'https://prod-shp-checkout.gokwik.co';
+    const cartId =
       JSON.parse(localStorage.getItem('cartLastUpdatedAt') || '')?.id ||
-      getCookie('cart');
-    document.cookie.slice();
-    const apiResponse = await getCart(cartID);
-    const cart = apiResponse.data ? apiResponse.data.cart : null;
-    console.log(cart);
+      getGkCookie('cart');
+
+    const discountCode = getHydrogenDiscountCode();
+    const body = {
+      merchantDomain: window.location.origin,
+      mid: window.gkMerchantId,
+      cartId,
+    };
+    const KWIK_SIGNED_IN = 'KWIKSIGNEDIN';
+
+    localStorage.setItem(KWIK_SIGNED_IN, undefined);
+    const response = await fetch(API_URL + '/v3/login/request', {
+      method: 'POST',
+      headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const res = await response.json();
+    const requestId = res.data.requestId;
+    if (response.status !== 200 || !requestId) {
+      window.location.href = '/checkout';
+    }
+    if (res?.data?.failsafe) {
+      let gkFailSafe = res?.data?.failsafe;
+      if (gkFailSafe) {
+        window.location.href = window.location.origin + '/checkout';
+        return;
+      }
+    }
+    let url = API_URL + '/sa-login-ui/gk_sa_login.html?reqId=' + requestId;
+    const kp_email = localStorage.getItem('kp_email');
+    if (kp_email) {
+      url = url + '&kpe=' + kp_email;
+    }
+
+    if (discountCode) {
+      url = url + '&cd=' + discountCode;
+    }
+    let gkIframe = document.getElementsByClassName('gk-login')[0];
+
+    gkIframe.contentWindow.postMessage(
+      {
+        type: 'utm_params',
+        orig_referrer: document.referrer,
+        mkt_source: sessionStorage.getItem('gkMktSource'),
+        mkt_campaign: sessionStorage.getItem('gkMktCampaign'),
+        mkt_medium: sessionStorage.getItem('gkMktMedium'),
+        mkt_content: sessionStorage.getItem('gkMktContent'),
+        mkt_term: sessionStorage.getItem('gkMktTerm'),
+        source: sessionStorage.getItem('gkSource'),
+        landing_page: sessionStorage.getItem('gkLandingPage'),
+      },
+      LOGIN_IFRAME_HOST,
+    );
+
+    gkIframe.contentWindow.postMessage(
+      {
+        type: 'merchant_url',
+        url: window.location.href,
+      },
+      LOGIN_IFRAME_HOST,
+    );
+    const gkModal = document.getElementById('gk-modal');
+
+    gkModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    document.getElementsByClassName('loader-content')[0].style.display = 'none';
+    document.getElementsByClassName('gk-otp-popup')[0].style.display = 'block';
+    gkIframe.contentWindow.postMessage(
+      {type: 'popup-display-change', gkModalDisplay: 'block'},
+      LOGIN_IFRAME_HOST,
+    );
+    const KWIK_SESSION_TOKEN_KEY = 'KWIKSESSIONTOKEN';
+
+    const token = getGkCookie(KWIK_SESSION_TOKEN_KEY);
+    const adSource =
+      window.location.href.split('?').length > 1
+        ? window.location.href.split('?')[1]
+        : undefined;
+
+    gkIframe.contentWindow.postMessage(
+      {
+        domain: window.gkShopDomain,
+        email: window.gkCustomerEmail,
+        cart: 'hydrogen',
+        token,
+        shopifySessionId: window.gkShopifySessionId,
+        discountCode: getHydrogenDiscountCode(),
+        kwikPassEmail: kp_email,
+        source: adSource,
+        requestId,
+      },
+      LOGIN_IFRAME_HOST,
+    );
+
+    analyticsEvent({
+      adSource,
+      eventType: 'onGkClick',
+      merchantId: window.gkMerchantId,
+      name: 'gokwik-button-clicked',
+      type: 'event',
+      shopifySessionId: window.gkShopifySessionId,
+    });
+
     buyNowRun = false;
   };
 
