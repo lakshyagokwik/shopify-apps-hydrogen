@@ -49,12 +49,11 @@ export function GokwikButton(passedData) {
     createBuyNowCart(passedData);
   };
 
-    const variables = {
-      cartId: cart.id,
-      lineIds: [],
-    };
-    gokwikStoreFrontApi(query, variables);
+  const variables = {
+    cartId: cart.id,
+    lineIds: [],
   };
+  gokwikStoreFrontApi(query, variables);
 
   const createBuyNowCart = (passedData) => {
     const query = `
