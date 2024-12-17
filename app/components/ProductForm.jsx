@@ -1,7 +1,7 @@
 import {Link, useNavigate} from '@remix-run/react';
 import {AddToCartButton} from './AddToCartButton';
 import {useAside} from './Aside';
-import { GokwikButton } from './gokwik-sdk/GokwikCheckoutButton';
+import { GokwikButton } from './gokwik-hydrogen-old-ui/GokwikCheckoutButton';
 
 /**
  * @param {{
