@@ -10,9 +10,9 @@ shopifyGraphQlUrl: Graph QL API for your store, follows the format-
 */
 
 export const gokwikConfig = {
-  merchantId: '19g6im416netb',
-  shopifyGraphQlUrl: 'https://virgiodev.myshopify.com/api/2022-07/graphql.json',
-  gkShopDomain: 'virgiodev.myshopify.com',
+  merchantId: '19y5q1lngbrv',
+  shopifyGraphQlUrl: 'https://virgiofashion.myshopify.com/api/2022-07/graphql.json',
+  gkShopDomain: 'virgiofashion.myshopify.com',
 };
 
 export const triggerGokwikCheckout = async () => {

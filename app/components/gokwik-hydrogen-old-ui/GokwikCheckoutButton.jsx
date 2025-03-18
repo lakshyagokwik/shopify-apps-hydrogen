@@ -25,7 +25,6 @@ export function GokwikButton(passedData) {
                 </div>
               </center>
               <div class="gk-otp-popup">
-                <span class="gk-close">&times;</span>
                 <iframe class="gk-login" title="description" src='https://pdp.gokwik.co/checkout-enhancer/index.html'></iframe>
               </div>
               <div class="gk-modal-footer"></div>
